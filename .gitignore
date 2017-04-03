@@ -1,0 +1,6 @@
+# only include .m files
+/Thumbs.db
+/HW1/photos
+/HW1/*.pdf
+/HW1/src/*
+!/HW1/src/*.m
