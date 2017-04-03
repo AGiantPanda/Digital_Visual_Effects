@@ -1,5 +1,7 @@
-# only include .m files
+# this is a windows thumbnail file
 /Thumbs.db
+
+# only include .m files
 /HW1/photos
 /HW1/*.pdf
 /HW1/src/*
