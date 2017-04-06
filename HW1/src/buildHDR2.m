@@ -4,14 +4,18 @@
 
 function [imgHDR, Coeffs, Ratios] = buildHDR2(images, exposures, max_order)
 	[row, col, channel, imgNum] = size(images);
-    pixels = row*col;
-
-	% normalize the images values to [0, 1]
-	% i should add normally distributed noise later
-    imgsNorm = zeros(row, col, channel, imgNum);
-    imgsNorm(:,:,:,:) = images(:,:,:,:) / 255;
+    
+    % sample pixels then normalize it to [0, 1]
+    pixels = 1000;
+    sampled_r = randi(row, 1, pixels);
+    sampled_c = randi(col, 1, pixels);
+    sampled_pixels = zeros(pixels, channel, imgNum);
+    for p = 1:pixels
+        sampled_pixels(p,:,:) = double(images(sampled_r(p), sampled_c(p), :, :)) / 255.0;
+    end
     [v,o] = sort(exposures);
-    imgsNorm = imgsNorm(:,:,:,o);
+    sampled_pixels = sampled_pixels(:,:,o);
+
 	% max_order size, the default is 10
     if(nargin < 3)
         max_order = 10;
@@ -22,7 +26,7 @@ function [imgHDR, Coeffs, Ratios] = buildHDR2(images, exposures, max_order)
     order = 0;
     coeffs = cell(1);
     ratios = cell(1);
-    for N = 0:max_order
+    for N = 1:max_order
         R = zeros(imgNum, channel);
         R(1, :) = 0.5;
         c = zeros(N+1, channel);
@@ -32,15 +36,13 @@ function [imgHDR, Coeffs, Ratios] = buildHDR2(images, exposures, max_order)
     	P_Mq1 = zeros(pixels, N+1, channel);
         P_M = zeros(pixels+1, N+1, channel);
     	for q = 1:imgNum - 1
-    		for i = 1:row
-    			for j = 1:col
-    				for k = 1:N+1
-    					M0 = power(imgsNorm(i, j, :, q), k-1);
-    					M1 = power(imgsNorm(i, j, :, q+1), k-1);
-    					P_Mq0(i*col+j, k, :) = M0;
-    					P_Mq1(i*col+j, k, :) = M1;
-    					P_M(i*col+j, k, :) = M0(1,:) - R(q,:).*M1(1,:);
-    				end
+    		for p = 1:pixels
+    			for k = 1:N+1
+    				M0 = power(sampled_pixels(p,:,q),k-1);
+    				M1 = power(sampled_pixels(p,:,q+1),k-1);
+    				P_Mq0(p, k, :) = M0;
+					P_Mq1(p, k, :) = M1;
+					P_M(p, k, :) = M0(1,:) - R(q,:).*M1(1,:);
     			end
     		end
     		P_M(pixels+1,:,:) = 1.0;
@@ -50,25 +52,33 @@ function [imgHDR, Coeffs, Ratios] = buildHDR2(images, exposures, max_order)
     	    	% P_Matrix * C_Matrix = D_Matrix
                 % {(pixels+1) * (N+1)} * {c0~cn} = {0,..., 0, 1}
                 % calculate {c0~cn}
-                c(:,s) = P_M\D_M;
+                c(:,s) = P_M(:,:,s)\D_M;
 
                 % update R
-                R(q+1, s) = sum(P_Mq0(:,:,s)*c(:,s) ./ P_Mq1(:,:,s)*c(:,s));
+                for p = 1:pixels
+                    M0 = 0;
+                    M1 = 1;
+                    for k = 1:N+1
+                        M0 = M0 + power(sampled_pixels(p,s,q), k-1) * c(k,s);
+                        M1 = M1 + power(sampled_pixels(p,s,q+1), k-1) * c(k,s);
+                    end
+                    R(q+1, s) = R(q+1, s) + M0 / M1;
+                end
             end
         end
 
     	% calculate combined order's error, choose the minimum
     	err = 0;
     	for q = 1:imgNum - 1
-    		for i = 1:row
-    			for j = 1:col
-    				M0 = zeros(1,3);
-    				M1 = zeros(1,3);
-    				for k = 1:N+1
-    					M0(1,:) = M0(1,:) + c(n,:)*power(imgsNorm(i,j,:,q),k-1);
-    					M1(1,:) = M1(1,:) + c(n,:)*power(imgsNorm(i,j,:,q+1),k-1);
-    				end
-    				err = err + sum(power(M0(1,:) - R(q+1,:).*M1(1,:), 2));
+            for p = 1:pixels
+				M0 = zeros(1,3);
+    			M1 = zeros(1,3);
+    			for k = 1:N+1
+    				M0(1,:) = M0(1,:) + c(k,:).*power(sampled_pixels(p,:,q),k-1);
+					M1(1,:) = M1(1,:) + c(k,:).*power(sampled_pixels(p,:,q+1),k-1);
+    			end
+                for s = 1:channel
+        			err = err + sum(power(M0(1,s) - R(q+1,s).*M1(1,s), 2));
                 end
             end
         end
@@ -82,7 +92,7 @@ function [imgHDR, Coeffs, Ratios] = buildHDR2(images, exposures, max_order)
 	    end
 	end
     
-    imgHDR = imgsNorm;
+    imgHDR = images;
     Coeffs = coeffs(1);
     Ratios = ratios(1);
 	% use {c1~cn} with the least error to compute hdr photo
