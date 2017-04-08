@@ -1,15 +1,18 @@
     %%
     clear all;
-	folder = 'C:\Users\panda\Desktop\VFXHW1\photos\ori1\'; 
+    folder = '../image/original/test2'; 
 
     %smoothness factor for gsolve
-	lambda = 10;
+    lambda = 10;
 
 
     disp('Read in images with different exposures...');
     [images, exposures] = readImg(folder);
     [row, col, channel, imgNum] = size(images);
     ln_deltaT = log(exposures);
+
+    disp('Aligning images now...');
+    [images, x_shifts, y_shifts] = alignImgs(images);
 
     %sample for doing gsolve (need to be distributed well)
     disp('Shrink the image to get well-distributed sample pixels...');
@@ -19,7 +22,7 @@
 
     sample_img = zeros(sample_row, sample_col, channel, imgNum);
     for i = 1:imgNum
-	   sample_img(:,:,:,i) = round(imresize(images(:,:,:,i), [sample_row sample_col], 'bilinear'));
+       sample_img(:,:,:,i) = round(imresize(images(:,:,:,i), [sample_row sample_col], 'bilinear'));
     end
 
     disp('Use gsolve to calculate camera response function...');
@@ -30,23 +33,17 @@
     w = min(w, 255-w);
     w = w/max(w);
 
-    % Use sample pixels to calculate camera response function
-    % reshape the images (row,col,imgNum) -> (row*col, imgNum)
-    %-------------------------------------------------------------------
-    % For gsolve:
-    % Z(i,j) is the pixel values of pixel location number i in image j
-    % B(j) is the log delta t, or log shutter speed, for image j
-    %-------------------------------------------------------------------
+
     for ch = 1:channel
-	   rsimages = reshape(sample_img(:,:,ch,:), sample_row*sample_col, imgNum);
+       rsimages = reshape(sample_img(:,:,ch,:), sample_row*sample_col, imgNum);
         [g(:,ch), ln_E(:,ch)] = gsolve(rsimages, ln_deltaT, lambda, w);
     end
 
     disp('Build HDR radiance map...');
     imgHDR = buildHDR(images, g, ln_deltaT, w);
-    hdrwrite(imgHDR, 'test2_bilinear.hdr');
+    hdrwrite(imgHDR, 'test2_align_bilinear.hdr');
     
     imgTM = tonemapLocal(imgHDR,0.18,4,4.0,0.05);
-    %hdrwrite(imgTM, 'test_KCFML_tonemapped_local.hdr');
-    imwrite(imgTM, 'test2_018_4_4_005_bilinear.png');
+    hdrwrite(imgTM, 'test_KCFML_tonemapped_local.hdr');
+    imwrite(imgTM, 'test2_align_018_4_4_005_bilinear.png');
 
