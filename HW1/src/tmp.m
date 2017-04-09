@@ -1,6 +1,6 @@
     %%
     clear all;
-    folder = '../image/original/test2'; 
+    folder = 'C:\Users\panda\Desktop\VFXHW1\HW1\photos\lib6'; 
 
     %smoothness factor for gsolve
     lambda = 10;
@@ -41,9 +41,9 @@
 
     disp('Build HDR radiance map...');
     imgHDR = buildHDR(images, g, ln_deltaT, w);
-    hdrwrite(imgHDR, 'test2_align_bilinear.hdr');
+    hdrwrite(imgHDR, strcat(folder, '\test2_align_bilinear.hdr'));
     
-    imgTM = tonemapLocal(imgHDR,0.18,4,4.0,0.05);
-    hdrwrite(imgTM, 'test_KCFML_tonemapped_local.hdr');
-    imwrite(imgTM, 'test2_align_018_4_4_005_bilinear.png');
+    imgTM = tonemapLocal(imgHDR,0.54,4,4.0,0.05);
+    hdrwrite(imgTM, strcat(folder, '\test_KCFML_tonemapped_local.hdr'));
+    imwrite(imgTM, strcat(folder, '\test2_align_018_4_4_005_bilinear.png'));
 
