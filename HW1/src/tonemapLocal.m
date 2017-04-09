@@ -29,7 +29,7 @@ function imgOut = tonemapLocal(img, a, scales, phi, epsilon )
     for i = 1:scales
         s = power(1.6,i-1);
         G_s = fspecial('gaussian', floor(10*s), s); %gouassian filter
-        Lblur_s(:,:,i) = imfilter(L,G_s,'conv','symmetric'); % image pass a gaussian filter
+        Lblur_s(:,:,i) = exp(imfilter(log(L),G_s,'conv','symmetric')); % image pass a gaussian filter
     end
     
     for i = 1:size(Lw,1)
