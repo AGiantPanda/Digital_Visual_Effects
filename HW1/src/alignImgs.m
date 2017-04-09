@@ -79,6 +79,6 @@ function [imgsOut, x_shifts, y_shifts] = alignImgs(images, levels)
     % compute the aligned images of the original, the border is set to 0
     imgsOut = zeros(row, col, channel, imgNum, 'uint8');
     for i = 1:imgNum
-        imgsOut(:,:,:,i) = imtranslate(images(:,:,:,i), [x_shifts(i), y_shifts(i)]);
+        imgsOut(:,:,:,i) = imtranslate(images(:,:,:,i), [x_shifts(i), y_shifts(i)],'FillValues',[0,0,255]);
     end
 end
