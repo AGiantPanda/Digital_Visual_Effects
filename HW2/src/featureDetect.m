@@ -4,19 +4,22 @@ function imgOut=featureDetect(img)
 	[row, col, channel] = size(img);
 	img_gray = rgb2gray(img);
 	sigma = 1;
-	[xx, yy] = meshgrid(-1:1, -1:1);
-	threshold = 1000000;
+	gaussian_N = 6 * sigma;
+	[xx, yy] = meshgrid(-gaussian_N:gaussian_N, -gaussian_N:gaussian_N);
+	threshold = 200000;
 	k = 0.04;
 
 
 	% 1. Compute x and y derivatives of image
 	Gxy = exp(-(xx .^2 + yy .^ 2) / (2 * sigma * sigma));
-	Gx = xx .* Gxy;
-	Gy = yy .* Gxy;
+	% Gx = xx .* Gxy;
+	% Gy = yy .* Gxy;
 
-	I_x = conv2(img_gray, Gx, 'same');
-	I_y = conv2(img_gray, Gy, 'same');
-
+	% I_x = conv2(img_gray, Gx, 'same');
+	% I_y = conv2(img_gray, Gy, 'same');
+	I_x = diff(img_gray(1:row-1,:), 1, 2);
+	I_y = diff(img_gray(:,1:col-1), 1, 1);
+	
 	% 2. Compute products of derivatives at every pixel
 	I_x2 = I_x .* I_x;
 	I_y2 = I_y .* I_y;
@@ -31,9 +34,8 @@ function imgOut=featureDetect(img)
 	% 5. Compute the response of the detector at each pixel
 	% 6. Threshold on value of R; compute nonmax suppression
 	imgOut = img;
-	R = zeros(row, col);
-	for r = 1:row
-		for c = 1:col
+	for r = 1:row-1
+		for c = 1:col-1
 			M = [S_x2(r, c), S_xy(r, c); S_xy(r, c), S_y2(r, c)];
 			R = det(M) - k * (trace(M) ^ 2);
 
