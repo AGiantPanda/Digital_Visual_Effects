@@ -3,22 +3,22 @@ function imgOut=featureDetect(img)
 	% basic spec
 	[row, col, channel] = size(img);
 	img_gray = rgb2gray(img);
+	img_gray = single(img_gray);
 	sigma = 1;
-	gaussian_N = 6 * sigma;
+	gaussian_N = 1;
 	[xx, yy] = meshgrid(-gaussian_N:gaussian_N, -gaussian_N:gaussian_N);
-	threshold = 200000;
+	threshold = 100000000;
 	k = 0.04;
 
 
 	% 1. Compute x and y derivatives of image
 	Gxy = exp(-(xx .^2 + yy .^ 2) / (2 * sigma * sigma));
-	% Gx = xx .* Gxy;
-	% Gy = yy .* Gxy;
+	Gxy	= Gxy/sum(Gxy(:));
+	Gx = xx .* Gxy;
+	Gy = yy .* Gxy;
 
-	% I_x = conv2(img_gray, Gx, 'same');
-	% I_y = conv2(img_gray, Gy, 'same');
-	I_x = diff(img_gray(1:row-1,:), 1, 2);
-	I_y = diff(img_gray(:,1:col-1), 1, 1);
+	I_x = conv2(img_gray, xx, 'same');
+	I_y = conv2(img_gray, yy, 'same');
 	
 	% 2. Compute products of derivatives at every pixel
 	I_x2 = I_x .* I_x;
