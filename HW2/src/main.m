@@ -1,10 +1,11 @@
+close all;
 clear all;
-%Parameters
-sigma = 1.5;  k =0.04; localRadius= 20; threshold = 50;
+%Parameters for finding corners (HarrisTop)
+SIGMA = 1.5;  K =0.04; LOCAL_RADIUS= 20; THRESHOLD = 50;
+CORNER_NUM = 400;MARGIN = 50;
 
-keypointNum = 400;
-
-margin = 50;
+%Parameters for matching (knnMatch)
+MATCH_NUM = 20;
 
 % Get input images from input directory, and store them in dataset{}
 InputDir = 'csie/';
@@ -25,24 +26,24 @@ for i = 1:N
     end
 end
 
-CornerDescription = {}
+CornerDescription = {};
 for i=1:N
 	% Get grayscale image
 	disp(['For image ',num2str(i),', finding feature points......'])
 	Y = rgb2ycbcr(dataset{i});
 	Y = Y(:,:,1);
-	Corner(i) = HarrisTop(Y, sigma, k, threshold, keypointNum, localRadius, margin);
+	Corner(i) = HarrisTop(Y, SIGMA, K, THRESHOLD, CORNER_NUM, LOCAL_RADIUS, MARGIN);
 	featureSize = size(Corner(i).c,1);
 	CornerDescription{i} = FeatureDescriptor(Y,Corner(i));
 	figure, imagesc(dataset{i}), axis image, colormap(gray), hold on
 	plot(Corner(i).c,Corner(i).r ,'ys'), title('corners detected');
 end
 
-PointMatched = {}
-PointDistance = {}
+PointMatched = {};
+PointDistance = {};
 for i=1:(N-1)
     disp(['Matching Image ',num2str(i),'and Image ', num2str(i+1), '......'])
-	[ PointMatched{i} PointDistance{i}] = knnMatch(CornerDescription{i},CornerDescription{i+1},10);
+	[ PointMatched{i} PointDistance{i}] = knnMatch(CornerDescription{i},CornerDescription{i+1},MATCH_NUM);
 	figure, imagesc(dataset{i}), axis image, colormap(gray), hold on
 	plot(Corner(i).c,Corner(i).r ,'ys'), plot(PointMatched{i}(:,2),PointMatched{i}(:,1) ,'rs'),title('corners detected');
 	figure, imagesc(dataset{i+1}), axis image, colormap(gray), hold on
