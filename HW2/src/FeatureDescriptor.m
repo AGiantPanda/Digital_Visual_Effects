@@ -1,10 +1,8 @@
-% Adaptive Non-Maximal Suppression
-% INPUT:    img     double (height)x(width) array (grayscale image) with
-%                   values in the range 0-255
+% INPUT:    img     double (height)x(width) array (grayscale image) with values in the range 0-255
 %           x       nx1 vector representing the column coordinates of corners
 %           y       nx1 vector representing the row coordinates of corners
-% OUTPUT:   descs   64xn matrix of double values with column i being the 64
-%                   dimensional descriptor computed at location (xi, yi) in im
+% OUTPUT:   descs   (64+2)xn matrix of double values with column i being the 64
+%                   dimensional descriptor computed at location (xi, yi) in im, and the last 2xn are the positions of the corners
 function [descs] = FeatureDescriptor(img, Corner)
 DESC_SIZE = 40; % desc size must be divided by 8
 SIGMA = 1;
