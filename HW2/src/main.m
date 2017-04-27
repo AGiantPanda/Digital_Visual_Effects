@@ -28,7 +28,7 @@ end
 CornerDescription = {}
 for i=1:N
 	% Get grayscale image
-	disp(['For image',num2str(i),':'])
+	disp(['For image ',num2str(i),', finding feature points......'])
 	Y = rgb2ycbcr(dataset{i});
 	Y = Y(:,:,1);
 	Corner(i) = HarrisTop(Y, sigma, k, threshold, keypointNum, localRadius, margin);
@@ -38,20 +38,13 @@ for i=1:N
 	plot(Corner(i).c,Corner(i).r ,'ys'), title('corners detected');
 end
 
-
-[ point_matched point_distance] = knnMatch(CornerDescription{1},CornerDescription{2},10);
-%[matched point in 1_r , matched point in 1_c , matched point in 2_r, matched point in 2_c]
-
-%[ point_matched point_distance] = knnMatch(HarrisDiscriptor_1,HarrisDiscriptor_2,10);
-
-figure, imagesc(dataset{1}), axis image, colormap(gray), hold on
-plot(Corner(1).c,Corner(1).r ,'ys'), plot(point_matched(:,2),point_matched(:,1) ,'rs'),title('corners detected');
-figure, imagesc(dataset{2}), axis image, colormap(gray), hold on
-plot(Corner(2).c,Corner(2).r ,'ys'), plot(point_matched(:,4),point_matched(:,3) ,'rs'),title('corners detected');
-
-%figure, imagesc(dataset{1}), axis image, colormap(gray), hold on
-%plot(Corner_1.c,Corner_1.r ,'ys'), plot(point_matched(:,2),point_matched(:,1) ,'ys'),title('corners detected');
-
-%Corner = Harris_Laplace_fn(I,threshold);
-%Corner = Harris(I,sigma,k,threshold,localRadius,margin);
-%Corner = HarrisNMS(I,sigma,k,threshold,localRadius,keypointNum,margin);
+PointMatched = {}
+PointDistance = {}
+for i=1:(N-1)
+    disp(['Matching Image ',num2str(i),'and Image ', num2str(i+1), '......'])
+	[ PointMatched{i} PointDistance{i}] = knnMatch(CornerDescription{i},CornerDescription{i+1},10);
+	figure, imagesc(dataset{i}), axis image, colormap(gray), hold on
+	plot(Corner(i).c,Corner(i).r ,'ys'), plot(PointMatched{i}(:,2),PointMatched{i}(:,1) ,'rs'),title('corners detected');
+	figure, imagesc(dataset{i+1}), axis image, colormap(gray), hold on
+	plot(Corner(i+1).c,Corner(i+1).r ,'ys'), plot(PointMatched{i}(:,4),PointMatched{i}(:,3) ,'rs'),title('corners detected');
+end
