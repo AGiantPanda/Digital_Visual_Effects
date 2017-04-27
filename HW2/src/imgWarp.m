@@ -14,6 +14,6 @@ function imgOut = imgWarp(img, f)
 			imgOut(rw, cw, :) = img(r, c, :);
 		end
 	end
-
+	imgOut = imcrop(imgOut, [0, 0, col_warped-1, row]); % gonna fix this later
 	imshow(imgOut);
 end

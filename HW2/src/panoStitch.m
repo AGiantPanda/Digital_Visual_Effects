@@ -42,6 +42,15 @@ function imgOut = panoStitch(images, matches)
 	imgOut = zeros(row*3, col*3, channel, 'uint8');
 	imgOut(row+1:row*2, col+1:col*2, :) = images(:,:,:,1);
 	imgOut(row+1+offsets(1):row*2+offsets(1), col+1+offsets(2):col*2+offsets(2), :) = images(:,:,:,2);
+	nr = row+1;
+	nc = col+1;
+	if(offsets(1) < 0)
+		nr = nr+offsets(1);
+	end
+	if(offsets(2) < 0)
+		nc = nc+offsets(2);
+	end
+	imgOut = imcrop(imgOut, [nc, nr, col + abs(offsets(2)), row + abs(offsets(1))]);
 	imshow(imgOut);
 	% 3. Fix up the end-to-end alignments
 	
