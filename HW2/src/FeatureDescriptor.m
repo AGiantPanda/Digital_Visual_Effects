@@ -1,17 +1,18 @@
-% INPUT:    img     double (height)x(width) array (grayscale image) with values in the range 0-255
-%           x       nx1 vector representing the column coordinates of corners
-%           y       nx1 vector representing the row coordinates of corners
-% OUTPUT:   descs   (64+2)xn matrix of double values with column i being the 64
-%                   dimensional descriptor computed at location (xi, yi) in im, and the last 2xn are the positions of the corners
-function [descs] = FeatureDescriptor(img, Corner)
+% INPUT:    img     Gray scale image
+%	Corner 	corners found by HarrisTop.m
+% OUTPUT:   description   (64+2)xn matrix of double values and the last 2xn are the positions of the corners
+function [description] = FeatureDescriptor(img, Corner)
+% parameters
 DESC_SIZE = 40; % desc size must be divided by 8
 SIGMA = 1;
+
 H = size(img, 1);
 W = size(img, 2);
 N = numel(Corner.c);
+
 % convert 2d to 1d  idx = (x-1)*H+y
 get_idx = @(x, y) (x-1)*H+y;
-descs = zeros(64, N);
+description = zeros(64, N);
 
 for i = 1:N
 	[xx, yy] = meshgrid(Corner.c(i)-DESC_SIZE/2+1:Corner.c(i)+DESC_SIZE/2, Corner.r(i)-DESC_SIZE/2+1:Corner.r(i)+DESC_SIZE/2);
@@ -25,13 +26,14 @@ for i = 1:N
 	feat = reshape(feat, [DESC_SIZE, DESC_SIZE]);
 	G = fspecial('gaussian', fix(SIGMA*6), SIGMA);
 	Sx2 = imfilter(feat,G, 'replicate', 'conv');
-	% feat = imresize(feat, [8, 8]);
 	feat = feat(1:DESC_SIZE/8:DESC_SIZE, 1:DESC_SIZE/8:DESC_SIZE);
 	feat = double(feat);
 	feat = (feat(:) - mean(feat(:)))/std(feat(:));
-	descs(:, i) = feat;
+	description(:, i) = feat;
 end
-descs = descs';
-descs(:,65) = Corner.r;
-descs(:,66) = Corner.c;
+description = description';
+
+% Record the positions for corners
+description(:,65) = Corner.r;
+description(:,66) = Corner.c;
 end
