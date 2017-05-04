@@ -39,28 +39,28 @@ function imgOut = imgStitch(images, matches)
 	end
 
 	[row, col, channel] = size(images{1,1});
-	min_r = row;
+	min_r = 0;
 	max_r = 0;
 	min_c = col;
 	max_c = 0;
 	for p = 2:num_pic-1
 		offsets(p,:) = offsets(p-1,:) + offsets(p,:);
-	end
+    end
+    for p = 1:num_pic-1
+        if(offsets(p, 1) < min_r)
+            min_r = offsets(p, 1);
+        end
+        if(offsets(p, 1) > max_r)
+            max_r = offsets(p, 1);
+        end
+    end
+    min_r = abs(min_r);
 
 	% stitch the images
-	imgOut = zeros(3*row, col+offsets(p, 2), channel, 'uint8');
-	imgOut(row+1:2*row, 1:col, :) = images{1,1}(:,:,:);
+	imgOut = zeros(row+min_r+max_r, col+offsets(p, 2), channel, 'uint8');
+	imgOut(min_r+1:min_r+row, 1:col, :) = images{1,1}(:,:,:);
 	for p = 1:num_pic-1
-		imgOut(row+1+offsets(p, 1):row*2+offsets(p,1), 1+offsets(p,2):col+offsets(p,2), :) = images{1,p+1}(:,:,:);
-	end
-	% nr = row+1;
-	% nc = col+1;
-	% if(offsets(1) < 0)
-	% 	nr = nr+offsets(1);
-	% end
-	% if(offsets(2) < 0)
-	% 	nc = nc+offsets(2);
-	% end
-	% imgOut = imcrop(imgOut, [nc, nr, col + abs(offsets(2)), row + abs(offsets(1))]);
+		imgOut(min_r+1+offsets(p, 1):row+min_r+offsets(p,1), 1+offsets(p,2):col+offsets(p,2), :) = images{1,p+1}(:,:,:);
+    end
 	imshow(imgOut);
 end
