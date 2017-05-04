@@ -25,13 +25,15 @@ X_f = region(5);
 Y_f = region(6);
 
 %Blending mask
-msk = zeros(size(img_b));
-msk(Y_b:Y_b+h,X_b:X_b+w,:) = 1;
+%msk = zeros(size(img_b));
+%msk(Y_b:Y_b+h,X_b:X_b+w,:) = 1;
 
 %Blending region (+-1 pixels) -- Just paste it on (paste the pixel value and the gradient)
 img_blended = img_b;
 
+% Background gradient
 [im1_GradY im1_GradX] = imgrad(img_b);
+% Foreground gradient
 [im2_GradY im2_GradX] = imgrad(img_f);
 
 img_blended(Y_b:Y_b+h,X_b:X_b+w,:) = img_f(Y_f:Y_f+h,X_f:X_f+w,:);
