@@ -1,5 +1,5 @@
 % use cylindrical coordination
-function imgOut = imgWarp(img, description, f)
+function [imgOut, descriptor] = imgWarp(img, description, f)
 	[row, col, channel] = size(img);
 	col_warped = 2 * ceil(f * atan(col / 2 / f));
 	imgOut = zeros(row, col_warped, channel, 'uint8');
@@ -14,6 +14,7 @@ function imgOut = imgWarp(img, description, f)
 			imgOut(rw, cw, :) = img(r, c, :);
 		end
 	end
+	descriptor = description;
 	num = size(description, 1);
 	for i = 1:num
 		r_tmp = row/2 - description(i, 65);
@@ -22,8 +23,8 @@ function imgOut = imgWarp(img, description, f)
 		rw = floor(f * (r_tmp / sqrt(c_tmp ^ 2 + f ^ 2)));
 		cw = col_warped / 2 + cw;
 		rw = row / 2 - rw;
-		description(i, 65) = rw;
-		description(i, 66) = cw;
+		descriptor(i, 65) = rw;
+		descriptor(i, 66) = cw;
 	end
 	imgOut = imcrop(imgOut, [0, 0, col_warped-1, row]); % gonna fix this later
 	imshow(imgOut);

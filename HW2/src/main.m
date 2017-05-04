@@ -2,15 +2,15 @@ close all;
 clear all;
 %Parameters for finding corners (HarrisTop)
 SIGMA = 1.5;  K =0.04; LOCAL_RADIUS= 20; THRESHOLD = 50;
-CORNER_NUM = 400;MARGIN = 50;
+CORNER_NUM = 400;MARGIN = 25;
 
 %Parameters for matching (knnMatch)
-MATCH_NUM = 20;
+MATCH_NUM = 40;
 
 % Get input images from input directory, and store them in dataset{}
-InputDir = 'csie/';
+InputDir = 'C:\Users\panda\Desktop\VFXHW2\2pic\';
 files = dir(InputDir);
-files = files(4:end);
+files = files(3:end);
 
 N = numel(files);
 dataset = {};
@@ -20,8 +20,8 @@ for i = 1:N
     I = imread(strcat(InputDir,files(i).name));
     %I = imrotate(imresize(I, [480, 640]), 90);
     dataset{cnt} = I;
-    imshow(I);
-    drawnow;
+    % imshow(I);
+    % drawnow;
     cnt = cnt + 1;
     end
 end
@@ -35,8 +35,9 @@ for i=1:N
 	Corner(i) = HarrisTop(Y, SIGMA, K, THRESHOLD, CORNER_NUM, LOCAL_RADIUS, MARGIN);
 	featureSize = size(Corner(i).c,1);
 	CornerDescription{i} = FeatureDescriptor(Y,Corner(i));
-	figure, imagesc(dataset{i}), axis image, colormap(gray), hold on
-	plot(Corner(i).c,Corner(i).r ,'ys'), title('corners detected');
+	[dataset{i}, CornerDescription{i}] = imgWarp(dataset{i}, CornerDescription{i}, 706);
+	% figure, imagesc(dataset{i}), axis image, colormap(gray), hold on
+	% plot(Corner(i).c,Corner(i).r ,'ys'), title('corners detected');
 end
 
 PointMatched = {};
@@ -44,8 +45,11 @@ PointDistance = {};
 for i=1:(N-1)
     disp(['Matching Image ',num2str(i),'and Image ', num2str(i+1), '......'])
 	[ PointMatched{i} PointDistance{i}] = knnMatch(CornerDescription{i},CornerDescription{i+1},MATCH_NUM);
-	figure, imagesc(dataset{i}), axis image, colormap(gray), hold on
-	plot(Corner(i).c,Corner(i).r ,'ys'), plot(PointMatched{i}(:,2),PointMatched{i}(:,1) ,'rs'),title('corners detected');
-	figure, imagesc(dataset{i+1}), axis image, colormap(gray), hold on
-	plot(Corner(i+1).c,Corner(i+1).r ,'ys'), plot(PointMatched{i}(:,4),PointMatched{i}(:,3) ,'rs'),title('corners detected');
+	% figure, imagesc(dataset{i}), axis image, colormap(gray), hold on
+	% plot(Corner(i).c,Corner(i).r ,'ys'), plot(PointMatched{i}(:,2),PointMatched{i}(:,1) ,'rs'),title('corners detected');
+	% figure, imagesc(dataset{i+1}), axis image, colormap(gray), hold on
+	% plot(Corner(i+1).c,Corner(i+1).r ,'ys'), plot(PointMatched{i}(:,4),PointMatched{i}(:,3) ,'rs'),title('corners detected');
 end
+
+pano = imgStitch(dataset, PointMatched);
+imwrite(pano, 'C:\Users\panda\Desktop\VFXHW2\out.jpg');

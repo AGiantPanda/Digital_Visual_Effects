@@ -1,6 +1,6 @@
 function imgOut = imgStitch(images, matches)
-	K = 300; 							% run K times in total
-	N = 3; 								% number of randomly chosen points
+	K = 1000; 							% run K times in total
+	N = 2; 								% number of randomly chosen points
 	num_pic = size(images, 2); 		% number of pictures
 	num_mat = size(matches{1,1}, 1); 	% number of matching points
 
