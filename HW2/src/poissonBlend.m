@@ -19,10 +19,12 @@ h = region(2);
 %----------------------------------
 % Position for image to be blended(b:background & f:foreground)
 %----------------------------------
-X_b = region(3);
-Y_b = region(4);
-X_f = region(5);
-Y_f = region(6);
+%X_b = region(3);
+%Y_b = region(4);
+%X_f = region(5);
+%Y_f = region(6);
+X_b = COL - w +1;
+Y_b = ROW - h +1;
 
 %Blending mask
 %msk = zeros(size(img_b));
