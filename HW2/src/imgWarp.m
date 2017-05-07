@@ -27,5 +27,5 @@ function [imgOut, descriptor] = imgWarp(img, description, f)
 		descriptor(i, 66) = cw;
 	end
 	imgOut = imcrop(imgOut, [0, 0, col_warped-1, row]); % gonna fix this later
-	imshow(imgOut);
+	% imshow(imgOut);
 end

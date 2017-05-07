@@ -39,13 +39,19 @@ function imgOut = imgStitch(images, matches)
 	end
 
 	[row, col, channel] = size(images{1,1});
+	
+	% image blending
+	for p = 2:num_pic-1
+
+	end
+
+	for p = 2:num_pic-1
+		offsets(p,:) = offsets(p-1,:) + offsets(p,:);
+    end
 	min_r = 0;
 	max_r = 0;
 	min_c = col;
 	max_c = 0;
-	for p = 2:num_pic-1
-		offsets(p,:) = offsets(p-1,:) + offsets(p,:);
-    end
     for p = 1:num_pic-1
         if(offsets(p, 1) < min_r)
             min_r = offsets(p, 1);
@@ -55,12 +61,22 @@ function imgOut = imgStitch(images, matches)
         end
     end
     min_r = abs(min_r);
-
+    max_c = offsets(p,2);
 	% stitch the images
 	imgOut = zeros(row+min_r+max_r, col+offsets(p, 2), channel, 'uint8');
 	imgOut(min_r+1:min_r+row, 1:col, :) = images{1,1}(:,:,:);
 	for p = 1:num_pic-1
 		imgOut(min_r+1+offsets(p, 1):row+min_r+offsets(p,1), 1+offsets(p,2):col+offsets(p,2), :) = images{1,p+1}(:,:,:);
     end
-	imshow(imgOut);
+
+	img_blended = poissonBlend(images{1,1}(:,:,:), images{1,2}(:,:,:), [col-offsets(1,2)+1, row-offsets(1,1)+1]);    
+
+	% drift
+	coff = col+max_c-offsets(1,2);
+	drift = max_r / coff;
+	for c = 1:coff
+		imgOut(1:row, c+offsets(1,2), :) = imgOut(floor(drift*c+1):floor(row+drift*c),c+offsets(1,2),:);
+	end
+	imgOut = imcrop(imgOut,[1,1,col+max_c,row]);
+	imshow(img_blended);
 end

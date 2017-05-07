@@ -8,7 +8,7 @@ CORNER_NUM = 400;MARGIN = 25;
 MATCH_NUM = 40;
 
 % Get input images from input directory, and store them in dataset{}
-InputDir = 'C:\Users\panda\Desktop\VFXHW2\2pic\';
+InputDir = 'C:\Users\panda\Desktop\Digital_Visual_Effects\HW2\images\prtn\';
 files = dir(InputDir);
 files = files(3:end);
 
@@ -35,7 +35,7 @@ for i=1:N
 	Corner(i) = HarrisTop(Y, SIGMA, K, THRESHOLD, CORNER_NUM, LOCAL_RADIUS, MARGIN);
 	featureSize = size(Corner(i).c,1);
 	CornerDescription{i} = FeatureDescriptor(Y,Corner(i));
-	[dataset{i}, CornerDescription{i}] = imgWarp(dataset{i}, CornerDescription{i}, 706);
+	[dataset{i}, CornerDescription{i}] = imgWarp(dataset{i}, CornerDescription{i}, 800);
 	% figure, imagesc(dataset{i}), axis image, colormap(gray), hold on
 	% plot(Corner(i).c,Corner(i).r ,'ys'), title('corners detected');
 end
