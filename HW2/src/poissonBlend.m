@@ -74,15 +74,15 @@ for i = 1:ITERATION_TIMES
   
    
   for col=COL-w+1:NEW_COL-1
-    if(alpha(row,col) != 0 )
+    if(alpha(row,col) ~= 0 )
       for cha=1:CHANNEL
-        if(alpha(row+1,col) != 0 )
+        if(alpha(row+1,col) ~= 0 )
           list(end+1) = img_blended(row+1,col,cha);
         end
-        if(alpha(row,col-1) != 0)
+        if(alpha(row,col-1) ~= 0)
           list(end+1) = img_blended(row,col-1,cha);
         end
-        if(alpha(row,col+1) != 0 )
+        if(alpha(row,col+1) ~= 0 )
           list(end+1) = img_blended(row,col+1,cha);
         end
         tmp_x = ( lap(row,col,cha) + sum(list)) / length(list);
@@ -93,12 +93,12 @@ for i = 1:ITERATION_TIMES
   end
 
   col = NEW_COL;
-  if(alpha(row,col) != 0 )
+  if(alpha(row,col) ~= 0 )
     for cha=1:CHANNEL
-      if(alpha(row+1,col) != 0 )
+      if(alpha(row+1,col) ~= 0 )
         list(end+1) = img_blended(row+1,col,cha);
       end
-      if(alpha(row,col-1) != 0)
+      if(alpha(row,col-1) ~= 0)
         list(end+1) = img_blended(row,col-1,cha);
       end
       tmp_x = ( lap(row,col,cha) + sum(list)) / length(list);
@@ -115,18 +115,18 @@ for i = 1:ITERATION_TIMES
     %end
     
     for col=COL-w+1:NEW_COL-1
-      if(alpha(row,col) != 0 )
+      if(alpha(row,col) ~= 0 )
         for cha=1:CHANNEL
-          if(alpha(row+1,col) != 0 )
+          if(alpha(row+1,col) ~= 0 )
             list(end+1) = img_blended(row+1,col,cha);
           end
-          if(alpha(row,col-1) != 0)
+          if(alpha(row,col-1) ~= 0)
             list(end+1) = img_blended(row,col-1,cha);
           end
-          if(alpha(row-1,col) != 0 )
+          if(alpha(row-1,col) ~= 0 )
             list(end+1) = img_blended(row-1,col,cha);
           end
-          if(alpha(row,col+1) != 0)
+          if(alpha(row,col+1) ~= 0)
             list(end+1) = img_blended(row,col+1,cha);
           end
           tmp_x = ( lap(row,col,cha) + sum(list)) / length(list);          
@@ -137,15 +137,15 @@ for i = 1:ITERATION_TIMES
     end
     
     col = NEW_COL;
-    if(alpha(row,col) != 0 )
+    if(alpha(row,col) ~= 0 )
       for cha=1:CHANNEL
-          if(alpha(row+1,col) != 0 )
+          if(alpha(row+1,col) ~= 0 )
             list(end+1) = img_blended(row+1,col,cha);
           end
-          if(alpha(row,col-1) != 0)
+          if(alpha(row,col-1) ~= 0)
             list(end+1) = img_blended(row,col-1,cha);
           end
-          if(alpha(row-1,col) != 0 )
+          if(alpha(row-1,col) ~= 0 )
             list(end+1) = img_blended(row-1,col,cha);
           end
           tmp_x = ( lap(row,col,cha) + sum(list)) / length(list);          
@@ -163,15 +163,15 @@ for i = 1:ITERATION_TIMES
 %  end
 
   for col=COL-w+1:NEW_COL-1
-    if(alpha(row,col) != 0 )
+    if(alpha(row,col) ~= 0 )
       for cha=1:CHANNEL
-        if(alpha(row-1,col) != 0 )
+        if(alpha(row-1,col) ~= 0 )
           list(end+1) = img_blended(row-1,col,cha);
         end
-        if(alpha(row,col-1) != 0)
+        if(alpha(row,col-1) ~= 0)
           list(end+1) = img_blended(row,col-1,cha);
         end
-        if(alpha(row,col+1) != 0 )
+        if(alpha(row,col+1) ~= 0 )
           list(end+1) = img_blended(row,col+1,cha);
         end
         tmp_x = ( lap(row,col,cha) + sum(list)) / length(list);          
@@ -182,12 +182,12 @@ for i = 1:ITERATION_TIMES
   end
 
   col = NEW_COL;
-  if(alpha(row,col) != 0 )
+  if(alpha(row,col) ~= 0 )
     for cha=1:CHANNEL
-      if(alpha(row-1,col) != 0 )
+      if(alpha(row-1,col) ~= 0 )
         list(end+1) = img_blended(row-1,col,cha);
       end
-      if(alpha(row,col-1) != 0)
+      if(alpha(row,col-1) ~= 0)
         list(end+1) = img_blended(row,col-1,cha);
       end
       tmp_x = ( lap(row,col,cha) + sum(list)) / length(list);          
