@@ -3,7 +3,7 @@
 % img_f : foreground image
 % region_info : region to be blended(region_width, region_height, X_b, Y_b, X_f, Y_f)
 
-function img_blended = poissonBlend(img_b, img_f, region)
+function img_blended = poissonBlend(img_b, img_f, region, alpha)
 % PARAMETERS for poisson blending
 %----------------------------------
 THRESHOLD = 1E-3;
@@ -19,12 +19,9 @@ h = region(2);
 %----------------------------------
 % Position for image to be blended(b:background & f:foreground)
 %----------------------------------
-%X_b = region(3);
-%Y_b = region(4);
-%X_f = region(5);
-%Y_f = region(6);
 X_b = COL - w +1;
 Y_b = ROW - h +1;
+
 
 %Blending mask
 %msk = zeros(size(img_b));
@@ -32,7 +29,7 @@ Y_b = ROW - h +1;
 
 %Blending region -- Just paste it on (paste the pixel value and the gradient)
 %img_blended = img_b;
-NEW_ROW = ROW-Y_b+1;
+NEW_ROW = h;
 NEW_COL = 2*COL - w;
 img_blended = zeros(NEW_ROW, NEW_COL, CHANNEL);
 img_blended(:,1:end-(COL-w),:) = img_b(Y_b:end,:,:);
@@ -67,29 +64,47 @@ lap = circshift(im_GradY_all,[0,1]) - im_GradY_all + circshift(im_GradX_all,[1,0
 img_blended0 = img_blended;
 err0 = 1E32;
 
+list=[];
 % Start Blending
 for i = 1:ITERATION_TIMES
   % Consider blending in each position 
   % ----------------------------------------------------------------------------------------
+  
   row = 1;
   
-  %col = COL-w+1;
-  %for cha=1:CHANNEL
-  %	tmp_x = ( lap(row,col,cha) + img_blended(row+1,col,cha) + img_blended(row,col+1,cha) ) / 2;
-  %  img_blended( row, col, cha ) = img_blended( row, col, cha ) + STEP * (tmp_x - img_blended( row, col, cha ));
-  %end
    
   for col=COL-w+1:NEW_COL-1
-    for cha=1:CHANNEL
-        tmp_x = ( lap(row,col,cha) + img_blended(row+1,col,cha) + img_blended(row,col-1,cha) + img_blended(row,col+1,cha) ) / 3;
+    if(alpha(row,col) != 0 )
+      for cha=1:CHANNEL
+        if(alpha(row+1,col) != 0 )
+          list(end+1) = img_blended(row+1,col,cha);
+        end
+        if(alpha(row,col-1) != 0)
+          list(end+1) = img_blended(row,col-1,cha);
+        end
+        if(alpha(row,col+1) != 0 )
+          list(end+1) = img_blended(row,col+1,cha);
+        end
+        tmp_x = ( lap(row,col,cha) + sum(list)) / length(list);
         img_blended( row, col, cha ) = img_blended( row, col, cha ) + STEP * (tmp_x - img_blended( row, col, cha ));
+        list = [];
+      end
     end
   end
 
   col = NEW_COL;
-  for cha=1:CHANNEL
-    tmp_x = ( lap(row,col,cha) + img_blended(row+1,col,cha) + img_blended(row,col-1,cha) ) / 2;
-    img_blended( row, col, cha ) = img_blended( row, col, cha ) + STEP * (tmp_x - img_blended( row, col, cha ));
+  if(alpha(row,col) != 0 )
+    for cha=1:CHANNEL
+      if(alpha(row+1,col) != 0 )
+        list(end+1) = img_blended(row+1,col,cha);
+      end
+      if(alpha(row,col-1) != 0)
+        list(end+1) = img_blended(row,col-1,cha);
+      end
+      tmp_x = ( lap(row,col,cha) + sum(list)) / length(list);
+      img_blended( row, col, cha ) = img_blended( row, col, cha ) + STEP * (tmp_x - img_blended( row, col, cha ));
+      list = [];
+    end
   end
   % ----------------------------------------------------------------------------------------
   for row=2:NEW_ROW-1  
@@ -100,16 +115,43 @@ for i = 1:ITERATION_TIMES
     %end
     
     for col=COL-w+1:NEW_COL-1
-      for cha=1:CHANNEL
-        tmp_x = ( lap(row,col,cha) + img_blended(row+1,col,cha) + img_blended(row-1,col,cha) + img_blended(row,col-1,cha) + img_blended(row,col+1,cha) ) / 4;
-        img_blended( row, col, cha ) = img_blended( row, col, cha ) + STEP * (tmp_x - img_blended( row, col, cha ));
+      if(alpha(row,col) != 0 )
+        for cha=1:CHANNEL
+          if(alpha(row+1,col) != 0 )
+            list(end+1) = img_blended(row+1,col,cha);
+          end
+          if(alpha(row,col-1) != 0)
+            list(end+1) = img_blended(row,col-1,cha);
+          end
+          if(alpha(row-1,col) != 0 )
+            list(end+1) = img_blended(row-1,col,cha);
+          end
+          if(alpha(row,col+1) != 0)
+            list(end+1) = img_blended(row,col+1,cha);
+          end
+          tmp_x = ( lap(row,col,cha) + sum(list)) / length(list);          
+          img_blended( row, col, cha ) = img_blended( row, col, cha ) + STEP * (tmp_x - img_blended( row, col, cha ));
+          list = [];
+        end
       end
     end
     
     col = NEW_COL;
-    for cha=1:CHANNEL
-       	tmp_x = ( lap(row,col,cha) + img_blended(row+1,col,cha) + img_blended(row-1,col,cha) + img_blended(row,col-1,cha) ) / 3;
-        img_blended( row, col, cha ) = img_blended( row, col, cha ) + STEP * (tmp_x - img_blended( row, col, cha ));
+    if(alpha(row,col) != 0 )
+      for cha=1:CHANNEL
+          if(alpha(row+1,col) != 0 )
+            list(end+1) = img_blended(row+1,col,cha);
+          end
+          if(alpha(row,col-1) != 0)
+            list(end+1) = img_blended(row,col-1,cha);
+          end
+          if(alpha(row-1,col) != 0 )
+            list(end+1) = img_blended(row-1,col,cha);
+          end
+          tmp_x = ( lap(row,col,cha) + sum(list)) / length(list);          
+          img_blended( row, col, cha ) = img_blended( row, col, cha ) + STEP * (tmp_x - img_blended( row, col, cha ));
+          list = [];
+      end
     end
   end
   % ----------------------------------------------------------------------------------------
@@ -121,16 +163,37 @@ for i = 1:ITERATION_TIMES
 %  end
 
   for col=COL-w+1:NEW_COL-1
-    for cha=1:CHANNEL
-        tmp_x = ( lap(row,col,cha) + img_blended(row-1,col,cha) + img_blended(row,col-1,cha) + img_blended(row,col+1,cha) ) / 3;
+    if(alpha(row,col) != 0 )
+      for cha=1:CHANNEL
+        if(alpha(row-1,col) != 0 )
+          list(end+1) = img_blended(row-1,col,cha);
+        end
+        if(alpha(row,col-1) != 0)
+          list(end+1) = img_blended(row,col-1,cha);
+        end
+        if(alpha(row,col+1) != 0 )
+          list(end+1) = img_blended(row,col+1,cha);
+        end
+        tmp_x = ( lap(row,col,cha) + sum(list)) / length(list);          
         img_blended( row, col, cha ) = img_blended( row, col, cha ) + STEP * (tmp_x - img_blended( row, col, cha ));
+        list = [];
+      end
     end
   end
 
   col = NEW_COL;
-  for cha=1:CHANNEL
-    tmp_x = ( lap(row,col,cha) + img_blended(row-1,col,cha) + img_blended(row,col-1,cha) ) / 2;
-    img_blended( row, col, cha ) = img_blended( row, col, cha ) + STEP * (tmp_x - img_blended( row, col, cha ));
+  if(alpha(row,col) != 0 )
+    for cha=1:CHANNEL
+      if(alpha(row-1,col) != 0 )
+        list(end+1) = img_blended(row-1,col,cha);
+      end
+      if(alpha(row,col-1) != 0)
+        list(end+1) = img_blended(row,col-1,cha);
+      end
+      tmp_x = ( lap(row,col,cha) + sum(list)) / length(list);          
+      img_blended( row, col, cha ) = img_blended( row, col, cha ) + STEP * (tmp_x - img_blended( row, col, cha ));
+      list = [];
+    end
   end
   % ----------------------------------------------------------------------------------------
   dif = abs(img_blended-img_blended0);
