@@ -1,4 +1,4 @@
-function imgOut = imgStitch(images, matches)
+function imgOut = imgStitch(images, matches, alphas)
 	K = 1000; 							% run K times in total
 	N = 2; 								% number of randomly chosen points
 	num_pic = size(images, 2); 		% number of pictures
@@ -62,15 +62,25 @@ function imgOut = imgStitch(images, matches)
     end
     min_r = abs(min_r);
     max_c = offsets(p,2);
+
 	% stitch the images
-	imgOut = zeros(row+min_r+max_r, col+offsets(p, 2), channel, 'uint8');
+	imgOut = zeros(row+min_r+max_r, col+max_c, channel, 'uint8');
 	imgOut(min_r+1:min_r+row, 1:col, :) = images{1,1}(:,:,:);
 	for p = 1:num_pic-1
-		imgOut(min_r+1+offsets(p, 1):row+min_r+offsets(p,1), 1+offsets(p,2):col+offsets(p,2), :) = images{1,p+1}(:,:,:);
+		for r = 1:row
+			for c = 1:col
+				if (alphas{p+1}(r,c) > 0)
+					imgOut(min_r+offsets(p, 1)+r, offsets(p,2)+c, :) = images{1,p+1}(r,c,:);
+				end
+				% should put image blend here
+			end
+		end
     end
 
-	img_blended = poissonBlend(images{1,1}(:,:,:), images{1,2}(:,:,:), [col-offsets(1,2)+1, row-offsets(1,1)+1]);    
-
+	img_blended = poissonBlend(double(images{1,1}(:,:,:)), double(images{1,2}(:,:,:)), [col-offsets(1,2)+1, row-offsets(1,1)+1], alphas{1}, alphas{2});    
+    imshowpair(images{1}, images{2}, 'montage');
+    img_blended = uint8(img_blended);
+	
 	% drift
 	coff = col+max_c-offsets(1,2);
 	drift = max_r / coff;
