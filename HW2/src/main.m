@@ -8,7 +8,7 @@ CORNER_NUM = 400;MARGIN = 25;
 MATCH_NUM = 40;
 
 % Get input images from input directory, and store them in dataset{}
-InputDir = './../images/parrinton/';
+InputDir = 'C:\Users\panda\Desktop\VFXHW2\2pic\';
 files = dir(InputDir);
 files = files(3:end);
 
@@ -36,7 +36,18 @@ for i=1:N
 	Corner(i) = HarrisTop(Y, SIGMA, K, THRESHOLD, CORNER_NUM, LOCAL_RADIUS, MARGIN);
 	featureSize = size(Corner(i).c,1);
 	CornerDescription{i} = FeatureDescriptor(Y,Corner(i));
-	[dataset{i}, CornerDescription{i}, AlphaInfo{i}] = imgWarp(dataset{i}, CornerDescription{i}, 820);
+	[warpedImg, CornerDescription{i}, AlphaInfo{i}] = imgWarp(dataset{i}, CornerDescription{i}, 820);
+
+	% fill the black region in the warped image
+	[tmp_r, tmp_c, ch] = size(warpedImg);
+	dataset{i} = imresize(dataset{i}, [tmp_r, tmp_c]);
+	for r = 1:tmp_r
+		for c = 1:tmp_c
+			if(AlphaInfo{i}(r, c) > 0)
+				dataset{i}(r, c, :) = warpedImg(r, c, :);
+			end
+		end
+	end
 	% figure, imagesc(dataset{i}), axis image, colormap(gray), hold on
 	% plot(Corner(i).c,Corner(i).r ,'ys'), title('corners detected');
 end
