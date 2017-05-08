@@ -8,7 +8,7 @@ CORNER_NUM = 400;MARGIN = 25;
 MATCH_NUM = 40;
 
 % Get input images from input directory, and store them in dataset{}
-InputDir = 'C:\Users\panda\Desktop\Digital_Visual_Effects\HW2\images\prtn\';
+InputDir = './../images/parrinton/';
 files = dir(InputDir);
 files = files(3:end);
 
@@ -27,6 +27,7 @@ for i = 1:N
 end
 
 CornerDescription = {};
+AlphaInfo = {};
 for i=1:N
 	% Get grayscale image
 	disp(['For image ',num2str(i),', finding feature points......'])
@@ -35,7 +36,7 @@ for i=1:N
 	Corner(i) = HarrisTop(Y, SIGMA, K, THRESHOLD, CORNER_NUM, LOCAL_RADIUS, MARGIN);
 	featureSize = size(Corner(i).c,1);
 	CornerDescription{i} = FeatureDescriptor(Y,Corner(i));
-	[dataset{i}, CornerDescription{i}] = imgWarp(dataset{i}, CornerDescription{i}, 800);
+	[dataset{i}, CornerDescription{i}, AlphaInfo{i}] = imgWarp(dataset{i}, CornerDescription{i}, 820);
 	% figure, imagesc(dataset{i}), axis image, colormap(gray), hold on
 	% plot(Corner(i).c,Corner(i).r ,'ys'), title('corners detected');
 end
@@ -51,5 +52,5 @@ for i=1:(N-1)
 	% plot(Corner(i+1).c,Corner(i+1).r ,'ys'), plot(PointMatched{i}(:,4),PointMatched{i}(:,3) ,'rs'),title('corners detected');
 end
 
-pano = imgStitch(dataset, PointMatched);
-imwrite(pano, 'C:\Users\panda\Desktop\VFXHW2\out.jpg');
+pano = imgStitch(dataset, PointMatched, AlphaInfo);
+imwrite(pano, './out.jpg');
