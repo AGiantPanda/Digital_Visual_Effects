@@ -3,10 +3,10 @@
 % img_f: foreground (double)
 
 
-function [ img_blended ] = poissonBlend(img_b, img_f, region, up)
+function [ Y ] = poissonBlend_two(img_b, img_f, region, up)
 
-	Lf = imGradFeature(img_b);
-	Gf = imGradFeature(img_f);
+	img_bF = imGradFeature(img_b);
+	img_fF = imGradFeature(img_f);
 
 
 	w = region(1);
@@ -19,12 +19,12 @@ function [ img_blended ] = poissonBlend(img_b, img_f, region, up)
 
 	if (up==0)
 	  Y_b = ROW - h +1;
-	  img_blended(:,1:end-(COL-w),:) = img_b(Y_b:end,:,:);
-	  img_blended(:,COL-w+1:end,:) = img_f(1:h,:,:);
+	  img_blended(:,1:end-(COL-w),:) = img_bF(Y_b:end,:,:);
+	  img_blended(:,COL-w+1:end,:) = img_fF(1:h,:,:);
 	else
 	  Y_f = ROW - h +1;
-	  img_blended(:,1:end-(COL-w),:) = img_b(1:h,:,:);
-	  img_blended(:,COL-w+1:end,:) = img_f(Y_f:end,:,:);
+	  img_blended(:,1:end-(COL-w),:) = img_bF(1:h,:,:);
+	  img_blended(:,COL-w+1:end,:) = img_fF(Y_f:end,:,:);
 	 end
 	
 
