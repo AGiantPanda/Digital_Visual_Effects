@@ -2,7 +2,8 @@ close all;
 clear all;
 %Parameters for finding corners (HarrisTop)
 SIGMA = 1.5;  K =0.04; LOCAL_RADIUS= 20; THRESHOLD = 50;
-CORNER_NUM = 400;MARGIN = 25;
+%CORNER_NUM = 400;
+MARGIN = 25;
 
 %Parameters for matching (knnMatch)
 MATCH_NUM = 40;
@@ -18,13 +19,16 @@ cnt = 1;
 for i = 1:N
     if files(i).name(1) ~= '.'
     I = imread(strcat(InputDir,files(i).name));
-    %I = imrotate(imresize(I, [480, 640]), 90);
+    %I = imrotate(imresize(I, [480, 640]), 270);
     dataset{cnt} = I;
     % imshow(I);
     % drawnow;
     cnt = cnt + 1;
     end
 end
+
+CORNER_NUM = round(size(dataset{1},1)*size(dataset{1},2)/1000)*2;
+LOCAL_RADIUS= round(min(size(dataset{1},1),size(dataset{1},2))/CORNER_NUM);
 
 CornerDescription = {};
 AlphaInfo = {};
@@ -34,8 +38,13 @@ for i=1:N
 	disp(['For image ',num2str(i),', finding feature points......'])
 	Y = rgb2ycbcr(dataset{i});
 	Y = Y(:,:,1);
+	%%Harris Corner Detector - Top 
 	Corner(i) = HarrisTop(Y, SIGMA, K, THRESHOLD, CORNER_NUM, LOCAL_RADIUS, MARGIN);
-	featureSize = size(Corner(i).c,1);
+	
+	%%Harris Corner Detector - NMS 
+        CornerNMS(i) = HarrisTop(Y, SIGMA, K, THRESHOLD, CORNER_NUM, LOCAL_RADIUS, MARGIN,1);
+	
+	featureSize = size(CornerNMS(i).c,1);
 	CornerDescription{i} = FeatureDescriptor(Y,Corner(i));
 	[warpedImg, CornerDescription{i}, AlphaInfo{i}] = imgWarp(dataset{i}, CornerDescription{i}, 760);
 
