@@ -3,7 +3,7 @@
 % img_f: foreground (double)
 
 
-function [ img_blended ] = poissonBlend(img_b, img_f, region, up)
+function [ Y ] = poissonBlend(img_b, img_f, region, up)
 
 	Lf = imGradFeature(img_b);
 	Gf = imGradFeature(img_f);
