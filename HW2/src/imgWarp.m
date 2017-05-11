@@ -16,6 +16,21 @@ function [imgOut, descriptor, alpha] = imgWarp(img, description, f)
 			alpha(rw, cw) = 255;
 		end
 	end
+    
+    % for crop
+    offset1 = 0;
+    r_tmp = row/2 - 1;
+	c_tmp = 1 - col/2;
+	rw = floor(f * (r_tmp / sqrt(c_tmp ^ 2 + f ^ 2)));
+	rw = row / 2 - rw;
+	offset1 = rw - 1;
+
+    r_tmp = row/2 - row;
+	c_tmp = 1 - col/2;
+	rw = floor(f * (r_tmp / sqrt(c_tmp ^ 2 + f ^ 2)));
+	rw = row / 2 - rw;
+	offset2 = offset1+row-rw;
+
 	descriptor = description;
 	num = size(description, 1);
 	for i = 1:num
@@ -25,10 +40,11 @@ function [imgOut, descriptor, alpha] = imgWarp(img, description, f)
 		rw = floor(f * (r_tmp / sqrt(c_tmp ^ 2 + f ^ 2)));
 		cw = col_warped / 2 + cw;
 		rw = row / 2 - rw;
-		descriptor(i, 65) = rw;
+		descriptor(i, 65) = rw - offset1;
 		descriptor(i, 66) = cw;
-	end
-	imgOut = imcrop(imgOut, [1, 1, col_warped-2, row]); % gonna fix this later
-	alpha = imcrop(alpha, [1, 1, col_warped-2, row]); % gonna fix this later
+    end
+    
+	imgOut = imcrop(imgOut, [1, 1+offset1, col_warped-2, row-offset2]); % gonna fix this later
+	alpha = imcrop(alpha, [1, 1+offset1, col_warped-2, row-offset2]); % gonna fix this later
 	% imshow(imgOut);
 end

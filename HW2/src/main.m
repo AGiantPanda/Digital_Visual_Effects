@@ -8,7 +8,7 @@ CORNER_NUM = 400;MARGIN = 25;
 MATCH_NUM = 40;
 
 % Get input images from input directory, and store them in dataset{}
-InputDir = 'C:\Users\panda\Desktop\VFXHW2\2pic\';
+InputDir = 'C:\Users\panda\Desktop\Digital_Visual_Effects\HW2\images\parrinton\';
 files = dir(InputDir);
 files = files(3:end);
 
@@ -28,6 +28,7 @@ end
 
 CornerDescription = {};
 AlphaInfo = {};
+Warped = {};
 for i=1:N
 	% Get grayscale image
 	disp(['For image ',num2str(i),', finding feature points......'])
@@ -36,15 +37,15 @@ for i=1:N
 	Corner(i) = HarrisTop(Y, SIGMA, K, THRESHOLD, CORNER_NUM, LOCAL_RADIUS, MARGIN);
 	featureSize = size(Corner(i).c,1);
 	CornerDescription{i} = FeatureDescriptor(Y,Corner(i));
-	[warpedImg, CornerDescription{i}, AlphaInfo{i}] = imgWarp(dataset{i}, CornerDescription{i}, 820);
+	[warpedImg, CornerDescription{i}, AlphaInfo{i}] = imgWarp(dataset{i}, CornerDescription{i}, 760);
 
 	% fill the black region in the warped image
 	[tmp_r, tmp_c, ch] = size(warpedImg);
-	dataset{i} = imresize(dataset{i}, [tmp_r, tmp_c]);
+	Warped{i} = imresize(dataset{i}, [tmp_r, tmp_c]);
 	for r = 1:tmp_r
 		for c = 1:tmp_c
 			if(AlphaInfo{i}(r, c) > 0)
-				dataset{i}(r, c, :) = warpedImg(r, c, :);
+				Warped{i}(r, c, :) = warpedImg(r, c, :);
 			end
 		end
 	end
@@ -63,5 +64,5 @@ for i=1:(N-1)
 	% plot(Corner(i+1).c,Corner(i+1).r ,'ys'), plot(PointMatched{i}(:,4),PointMatched{i}(:,3) ,'rs'),title('corners detected');
 end
 
-pano = imgStitch(dataset, PointMatched, AlphaInfo);
+pano = imgStitch(Warped, PointMatched, AlphaInfo);
 imwrite(pano, './out.jpg');
