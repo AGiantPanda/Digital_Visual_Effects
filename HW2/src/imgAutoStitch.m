@@ -70,22 +70,29 @@ function imgOut = imgAutoStitch(images, matches, alphas)
 	maxr = 0;
 	minc = 0;
 	maxc = 0;
-		% for q = 2:num_pic
-		% 	if(total_offsets{q}(1) < minr)
-		% 		minr = total_offsets{q}(1);
-		% 	end
-		% 	if(total_offsets{q}(1) > maxr)
-		% 		maxr = total_offsets{q}(1);
-		% 	end
-		% 	if(total_offsets{q}(2) < minc)
-		% 		maxr = total_offsets{q}(2);
-		% 	end
-		% 	if(total_offsets{q}(2) > maxc)
-		% 		maxr = total_offsets{q}(2);
-		% 	end
-		% end
-
+	for q = 2:num_pic
+		if(offsets{1,q}(1) < minr)
+			minr = offsets{1,q}(1);
+		end
+		if(offsets{1,q}(1) > maxr)
+			maxr = offsets{1,q}(1);
+		end
+		if(offsets{1,q}(2) < minc)
+			minc = offsets{1,q}(2);
+		end
+		if(offsets{1,q}(2) > maxc)
+			maxc = offsets{1,q}(2);
+		end
+	end
+	minr = abs(minr);
+	minc = abs(minc);
 	% stitch imgs from images{1}
+	imgOut = zeros(minr+row+maxr, minc+col+maxc, ch, 'uint8');
+	imgOut(minr+1:minr+row, minc+1:minc+col, :) = images{1};
+	for q = 2:num_pic
+		imgOut(minr+1+offsets{1,q}(1):minr+row+offsets{1,q}(1), minc+1+offsets{1,q}(2):minc+col+offsets{1,q}(2), :) = images{q}(:,:,:);
+	end
+
 
 	imshow(imgOut);
 end
@@ -104,6 +111,9 @@ function [offsets, off_bits] = getOffsets(p, off_bits, offsets, inliers, accu)
 		end
 
 		if(inliers{p, q} > 0)
+            if(p == 1)
+                accu = [0,0];
+            end
 			accu = accu + offsets{p,q};
 			offsets{1, q} = accu;
 			off_bits(q) = 1;
