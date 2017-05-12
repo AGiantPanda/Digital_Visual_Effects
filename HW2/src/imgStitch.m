@@ -69,7 +69,7 @@ function imgOut = imgStitch(images, matches, alphas)
 	for p = 1:num_pic-1
 		for r = 1:row
 			for c = 1:col
-				if (alphas{p+1}(r,c) > 0)
+				if (1 > 0)
 					imgOut(min_r+offsets(p, 1)+r, offsets(p,2)+c, :) = images{1,p+1}(r,c,:);
 				end
 				% should put image blend here
@@ -77,9 +77,8 @@ function imgOut = imgStitch(images, matches, alphas)
 		end
     end
 
-	img_blended = poissonBlend(double(images{1,1}(:,:,:)), double(images{1,2}(:,:,:)), [col-offsets(1,2)+1, row-offsets(1,1)+1], alphas{1}, alphas{2});    
-    imshowpair(images{1}, images{2}, 'montage');
-    img_blended = uint8(img_blended);
+	% img_blended = poissonBlend(double(images{1}(:,:,:)), double(images{2}(:,:,:)), [col-offsets(1,2), row-offsets(1,1)], 0);    
+ %    img_blended = uint8(img_blended);
 	
 	% drift
 	coff = col+max_c-offsets(1,2);
@@ -88,5 +87,5 @@ function imgOut = imgStitch(images, matches, alphas)
 		imgOut(1:row, c+offsets(1,2), :) = imgOut(floor(drift*c+1):floor(row+drift*c),c+offsets(1,2),:);
 	end
 	imgOut = imcrop(imgOut,[1,1,col+max_c,row]);
-	imshow(img_blended);
+	imshow(imgOut);
 end

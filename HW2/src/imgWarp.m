@@ -17,7 +17,9 @@ function [imgOut, descriptor, alpha] = imgWarp(img, description, f)
 		end
 	end
     
-    % for crop
+    % to crop the dark edge
+    % offset1 is the dark region in the top
+    % offset2 is ... in the bottom
     offset1 = 0;
     r_tmp = row/2 - 1;
 	c_tmp = 1 - col/2;
@@ -29,8 +31,9 @@ function [imgOut, descriptor, alpha] = imgWarp(img, description, f)
 	c_tmp = 1 - col/2;
 	rw = floor(f * (r_tmp / sqrt(c_tmp ^ 2 + f ^ 2)));
 	rw = row / 2 - rw;
-	offset2 = offset1+row-rw;
+	offset2 = row-rw;
 
+	% transform descriptor position based on the warp params
 	descriptor = description;
 	num = size(description, 1);
 	for i = 1:num
@@ -44,7 +47,7 @@ function [imgOut, descriptor, alpha] = imgWarp(img, description, f)
 		descriptor(i, 66) = cw;
     end
     
-	imgOut = imcrop(imgOut, [1, 1+offset1, col_warped-2, row-offset2]); % gonna fix this later
-	alpha = imcrop(alpha, [1, 1+offset1, col_warped-2, row-offset2]); % gonna fix this later
+	imgOut = imcrop(imgOut, [1, 1+offset1, col_warped-2, row-offset2-offset1]); % gonna fix this later
+	alpha = imcrop(alpha, [1, 1+offset1, col_warped-2, row-offset2-offset1]); % gonna fix this later
 	% imshow(imgOut);
 end
