@@ -7,11 +7,6 @@ function imgOut = imgAutoStitch(images, matches, alphas)
 	N = 2; 								% number of randomly chosen points
 	num_pic = size(images, 2); 		% number of pictures
 
-	% from img 1 to num_pic-1, choose top m imgs that has the most corner matches
-	for i = 1:num_pic-1
-
-	end
-
 	% use RUNSAC to count inliers
 	inliers = {};
 	offsets = {};
@@ -50,33 +45,45 @@ function imgOut = imgAutoStitch(images, matches, alphas)
 				end
 			end
 			offsets{p,q} = offset;
-			offsets{q,p} = -offsets;
+			offsets{q,p} = -offset;
 		end
 	end
 
 	% check if the offset and inliers are from the right image match
-	total_offsets = {};
+	for p = 1:num_pic-1
+		for q = p+1:num_pic
+			if(inliers{p,q} <= 5.9 + 0.22*size(matches{p,q},1))
+				inliers{p,q} = 0;
+				inliers{q,p} = 0;
+                offsets{p,q} = [0,0];
+                offsets{q,p} = [0,0];
+			end
+		end
+	end
+
+	% stitch the offsets so that each offsets is based on image{1}
+	off_bits = zeros(1, num_pic);
+	off_bits(1) = 1;
+    accu = [0, 0];
+	[offsets, off_bits] = getOffsets(1, off_bits, offsets, inliers, accu);
 	minr = 0;
 	maxr = 0;
 	minc = 0;
 	maxc = 0;
-	for p = 1:num_pic-1
-		for q = p+1:num_pic
-			total_offsets{q} = findOffses(p, q, offsets, inliers);
-			if(total_offsets{q}(1) < minr)
-				minr = total_offsets{q}(1);
-			end
-			if(total_offsets{q}(1) > maxr)
-				maxr = total_offsets{q}(1);
-			end
-			if(total_offsets{q}(2) < minc)
-				maxr = total_offsets{q}(2);
-			end
-			if(total_offsets{q}(2) > maxc)
-				maxr = total_offsets{q}(2);
-			end
-		end
-	end
+		% for q = 2:num_pic
+		% 	if(total_offsets{q}(1) < minr)
+		% 		minr = total_offsets{q}(1);
+		% 	end
+		% 	if(total_offsets{q}(1) > maxr)
+		% 		maxr = total_offsets{q}(1);
+		% 	end
+		% 	if(total_offsets{q}(2) < minc)
+		% 		maxr = total_offsets{q}(2);
+		% 	end
+		% 	if(total_offsets{q}(2) > maxc)
+		% 		maxr = total_offsets{q}(2);
+		% 	end
+		% end
 
 	% stitch imgs from images{1}
 
@@ -84,6 +91,23 @@ function imgOut = imgAutoStitch(images, matches, alphas)
 end
 
 %% findOffset: function description
-function offset = findOffsets(p, q, offsets, inliers)
-	
+function [offsets, off_bits] = getOffsets(p, off_bits, offsets, inliers, accu)
+    num_pic = size(offsets,2);
+    off_b = ones(1, num_pic);
+    if (off_bits == off_b)
+        return;
+    end
+	for q = 1:num_pic
+		if(off_bits(q) == 1)
+			% already have q's offsets based on image{1}
+			continue;
+		end
+
+		if(inliers{p, q} > 0)
+			accu = accu + offsets{p,q};
+			offsets{1, q} = accu;
+			off_bits(q) = 1;
+			[offsets, off_bits] = getOffsets(q, off_bits, offsets, inliers, accu);
+		end
+	end
 end
