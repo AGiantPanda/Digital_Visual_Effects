@@ -52,7 +52,7 @@ function imgOut = imgAutoStitch(images, matches, alphas)
 	% check if the offset and inliers are from the right image match
 	for p = 1:num_pic-1
 		for q = p+1:num_pic
-			if(inliers{p,q} <= 5.9 + 0.22*size(matches{p,q},1))
+			if(inliers{p,q} <= 0.8 * (5.9 + 0.22*size(matches{p,q},1)))
 				inliers{p,q} = 0;
 				inliers{q,p} = 0;
                 offsets{p,q} = [0,0];
