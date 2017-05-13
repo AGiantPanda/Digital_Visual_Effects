@@ -61,7 +61,7 @@ function imgOut = imgRectangle(image, alpha)
 
 		% update the segments
 		sub_region = getSubRegion(imgOut, alpha);
-        imshow(alpha);
+        imshow(imgOut);
 	end
 end
 

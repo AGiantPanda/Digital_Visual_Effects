@@ -85,6 +85,10 @@ end
 
 [pano, alpha] = imgStitch(Warped, PointMatched, AlphaInfo);
 
+pano = imgRectangle(pano, alpha);
+
+% imshow(pano);
+
 % PointsMatched = {};
 % PointsDistance = {};
 % for i = 1:(N-1)
@@ -100,4 +104,4 @@ end
 
 % pano2 = imgAutoStitch(dataset, PointsMatched, AlphaInfo);
 
-% imwrite(pano, './out.jpg');
+imwrite(pano, './out.jpg');
