@@ -32,6 +32,8 @@ function [imgOut, descriptor, alpha] = imgWarp(img, description, f)
 	rw = floor(f * (r_tmp / sqrt(c_tmp ^ 2 + f ^ 2)));
 	rw = row / 2 - rw;
 	offset2 = row-rw;
+	offset1 = 0;
+	offset2 = 0;
 
 	% transform descriptor position based on the warp params
 	descriptor = description;
