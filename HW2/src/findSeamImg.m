@@ -16,9 +16,9 @@ function SeamImg=findSeamImg(x, orient)
 [rows cols]=size(x);
 
 SeamImg=zeros(rows,cols);
-SeamImg(1,:)=x(1,:);
 
 if(strcmp(orient, 'left') || strcmp(orient, 'right'))
+	SeamImg(1,:)=x(1,:);
 	for i=2:rows
 	    for j=1:cols
 	        if j-1<1
@@ -31,6 +31,7 @@ if(strcmp(orient, 'left') || strcmp(orient, 'right'))
 	    end
 	end
 else
+	SeamImg(:,1)=x(:,1);
 	for j=2:cols
 		for i=1:rows
 			if i-1<1

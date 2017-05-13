@@ -1,4 +1,4 @@
-function Emean=findEnergy(x)
+function Emean=findEnergy(x, alpha)
 % FINDENERGY creates an gradient img from a given RGB or grayscale image.
 % The vertical and horizontal gradients are found using a Sobel operator
 % and the gradient magnitude is found for each channel and averaged if RGB
@@ -31,7 +31,7 @@ Emean=1/dim*sum(E,3);   %finds average gradient image if RGB image
 % boundary condition
 for r = 1:rows
 	for c = 1:cols
-		if(x(r,c,1) == 0 && x(r,c,2) == 0 && x(r,c,3) == 0)
+		if(alpha(r,c) == 0)
 			Emean(r,c,:) = 10^8;
 		end
 	end

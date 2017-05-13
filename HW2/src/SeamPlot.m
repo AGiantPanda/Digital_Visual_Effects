@@ -12,10 +12,10 @@ function x=SeamPlot(x,SeamVector,orient)
 value=1.5*max(x(:));
 if(strcmp(orient, 'left') || strcmp(orient, 'right'))
 	for i=1:size(SeamVector,1)
-	    x(i,SeamVector(i))=value;
+	    x(i,SeamVector(i,1))=value;
 	end
 else
 	for j=1:size(SeamVector,2)
-	    x(SeamVector(j),j)=value;
+	    x(SeamVector(1,j),j)=value;
 	end
 end

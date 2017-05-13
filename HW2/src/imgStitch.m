@@ -1,4 +1,4 @@
-function imgOut = imgStitch(images, matches, alphas)
+function [imgOut, alpha] = imgStitch(images, matches, alphas)
 	K = 1000; 							% run K times in total
 	N = 2; 								% number of randomly chosen points
 	num_pic = size(images, 2); 		% number of pictures
@@ -45,6 +45,12 @@ function imgOut = imgStitch(images, matches, alphas)
 
 	end
 
+	double_images = images;
+	for p = 1:num_pic
+		double_images{p} = double(double_images{p});
+	end
+	img_blended = poissonBlend_all(double_images, offsets);
+
 	for p = 2:num_pic-1
 		offsets(p,:) = offsets(p-1,:) + offsets(p,:);
     end
@@ -64,28 +70,19 @@ function imgOut = imgStitch(images, matches, alphas)
     max_c = offsets(p,2);
 
 	% stitch the images
-	imgOut = zeros(row+min_r+max_r, col+max_c, channel, 'uint8');
-	imgOut(min_r+1:min_r+row, 1:col, :) = images{1,1}(:,:,:);
+	alpha = zeros(row+min_r+max_r, col+max_c, 'uint8');
+	alpha(min_r+1:min_r+row, 1:col) = alphas{1}(:,:);
 	for p = 1:num_pic-1
 		for r = 1:row
 			for c = 1:col
-				if (1 > 0)
-					imgOut(min_r+offsets(p, 1)+r, offsets(p,2)+c, :) = images{1,p+1}(r,c,:);
+				if (alphas{1}(r, c) > 0)
+					alpha(min_r+offsets(p, 1)+r, offsets(p,2)+c) = alphas{1,p+1}(r,c);
 				end
 				% should put image blend here
 			end
 		end
     end
 
-	% img_blended = poissonBlend(double(images{1}(:,:,:)), double(images{2}(:,:,:)), [col-offsets(1,2), row-offsets(1,1)], 0);    
- %    img_blended = uint8(img_blended);
-	
-	% drift
-	coff = col+max_c-offsets(1,2);
-	drift = max_r / coff;
-	for c = 1:coff
-		imgOut(1:row, c+offsets(1,2), :) = imgOut(floor(drift*c+1):floor(row+drift*c),c+offsets(1,2),:);
-	end
-	imgOut = imcrop(imgOut,[1,1,col+max_c,row]);
-	imshow(imgOut);
+% 	imshow(alpha);
+    imgOut = uint8(img_blended);
 end

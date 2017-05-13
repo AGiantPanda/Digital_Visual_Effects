@@ -34,7 +34,7 @@ if(strcmp(orient, 'left') || strcmp(orient, 'right'))
 else
     for j=cols:-1:1
         if j==cols
-            [vallue, i]=min(x(:,cols));
+            [value, i]=min(x(:,cols));
         else
             if SeamVector(1,j+1)==1
                 Vector=[Inf x(SeamVector(j+1),j) x(SeamVector(j+1)+1,j)];
