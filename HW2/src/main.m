@@ -23,7 +23,7 @@ for i = 1:N
 %     I = imresize(I, [480, 640]);
     I = imrotate(imresize(I, [480, 640]), 270);
     dataset{cnt} = I;
-    imshow(I);
+%     imshow(I);
     % drawnow;
     cnt = cnt + 1;
     end
@@ -54,17 +54,22 @@ for i=1:N
 	% plot(Corner(i).c,Corner(i).r ,'ys'), title('corners detected');
 end
 
-Warped = {};
+Warped = dataset;
+warp_param = zeros(1, N);
+warp_param(:) = 1100;
+warp_param(4) = 1000;
+warp_param(5) = 1000;
+% warp_param(9:11) = 1400;
 if (DoWarp == 1)
 	for i = 1:N
-		[warpedImg, CornerDescription{i}, AlphaInfo{i}] = imgWarp(dataset{i}, CornerDescription{i}, 820);
+		[warpedImg, CornerDescription{i}, AlphaInfo{i}] = imgWarp(dataset{i}, CornerDescription{i}, 900);
 
 		% fill the black region in the warped image
 		[tmp_r, tmp_c, ch] = size(warpedImg);
 		Warped{i} = imresize(dataset{i}, [tmp_r, tmp_c]);
 		for r = 1:tmp_r
 			for c = 1:tmp_c
-				if(AlphaInfo{i}(r,c) > 0)
+				if(1 > 0)
 					Warped{i}(r, c, :) = warpedImg(r, c, :);
 				end
 			end
@@ -104,4 +109,4 @@ pano = imgRectangle(pano, alpha);
 
 % pano2 = imgAutoStitch(dataset, PointsMatched, AlphaInfo);
 
-imwrite(pano, './out.jpg');
+% imwrite(pano, './out.jpg');

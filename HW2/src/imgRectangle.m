@@ -77,7 +77,7 @@ function sub_region = getSubRegion(image, alpha)
 		len = 0;
 		
 		tmp = c;
-		while(tmp <= col && alpha(1, tmp) == 0)
+		while(tmp <= col && image(1,tmp,1) == 0)
 			tmp = tmp + 1;
 		end
 		len = tmp - c;
@@ -98,7 +98,7 @@ function sub_region = getSubRegion(image, alpha)
 		len = 0;
 		
 		tmp = c;
-		while(tmp <= col && alpha(row, tmp) == 0)
+		while(tmp <= col && image(row,tmp,1) == 0)
 			tmp = tmp + 1;
 		end
 		len = tmp - c;
@@ -119,7 +119,7 @@ function sub_region = getSubRegion(image, alpha)
 		len = 0;
 		
 		tmp = r;
-		while(tmp <= row && alpha(tmp, 1) == 0)
+		while(tmp <= row && image(tmp,1,1) == 0)
 			tmp = tmp + 1;
 		end
 		len = tmp - r;
@@ -140,7 +140,7 @@ function sub_region = getSubRegion(image, alpha)
 		len = 0;
 		
 		tmp = r;
-		while(tmp <= row && alpha(tmp, col) == 0)
+		while(tmp <= row && image(tmp,col,1) == 0)
 			tmp = tmp + 1;
 		end
 		len = tmp - r;
